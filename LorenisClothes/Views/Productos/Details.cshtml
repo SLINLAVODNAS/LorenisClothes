@@ -1,0 +1,70 @@
+﻿@model LorenisClothes.Models.Producto
+
+@{
+    ViewData["Title"] = "Detalles del Producto";
+}
+
+<h1 class="mb-4">Detalles del Producto</h1>
+
+<div class="card shadow-sm p-4">
+
+    <div class="text-center mb-4">
+
+        <img src="@Model.ImagenUrl"
+             width="300"
+             style="border-radius:15px; object-fit:cover;" />
+
+    </div>
+
+    <dl class="row">
+
+        <dt class="col-sm-3">
+            Nombre
+        </dt>
+
+        <dd class="col-sm-9">
+            @Model.Nombre
+        </dd>
+
+        <dt class="col-sm-3">
+            Descripción
+        </dt>
+
+        <dd class="col-sm-9">
+            @Model.Descripcion
+        </dd>
+
+        <dt class="col-sm-3">
+            Precio
+        </dt>
+
+        <dd class="col-sm-9">
+            Q @Model.Precio
+        </dd>
+
+        <dt class="col-sm-3">
+            Color
+        </dt>
+
+        <dd class="col-sm-9">
+            @Model.Color
+        </dd>
+
+    </dl>
+
+</div>
+
+<div class="mt-4">
+
+    <a asp-action="Edit"
+           asp-route-id="@Model?.Id"
+           class="btn btn-warning">
+        Editar
+    </a>
+
+    <a asp-action="Index"
+           class="btn btn-secondary">
+        Volver
+    </a>
+
+</div>

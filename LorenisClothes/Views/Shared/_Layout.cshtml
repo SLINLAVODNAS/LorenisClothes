@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loreni´s Clothes</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+            body {
+                background-color: #f4f6f9;
+                font-family: 'Segoe UI', sans-serif;
+            }
+
+            .navbar {
+                background-color: #355c7d;
+                padding: 15px;
+            }
+
+            .navbar-brand {
+                color: white !important;
+                font-size: 24px;
+                font-weight: bold;
+            }
+
+            .nav-link {
+                color: white !important;
+                margin-left: 15px;
+                font-weight: 500;
+            }
+
+            .main-container {
+                margin-top: 30px;
+                background: white;
+                padding: 25px;
+                border-radius: 15px;
+                box-shadow: 0px 0px 15px rgba(0,0,0,0.08);
+            }
+
+            footer {
+                margin-top: 40px;
+                text-align: center;
+                color: gray;
+                padding: 20px;
+            }
+
+            .btn-primary {
+                background-color: #355c7d;
+                border: none;
+            }
+
+            .btn-primary:hover {
+                background-color: #2c4d69;
+            }
+
+            table {
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            th {
+                background-color: #355c7d !important;
+                color: white !important;
+            }
+
+            .card-producto {
+                transition: 0.3s;
+            }
+
+            .card-producto:hover {
+                transform: scale(1.02);
+            }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                Loreni´s Clothes
+            </a>
+
+            <div>
+                <a class="nav-link d-inline" asp-controller="Home" asp-action="Index">
+                    Inicio
+                </a>
+
+                <a class="nav-link d-inline" asp-controller="Productos" asp-action="Index">
+                    Productos
+                </a>
+            </div>
+
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-container">
+
+            @RenderBody()
+
+        </div>
+    </div>
+
+    <footer>
+        © 2026 - Loreni´s Clothes | Moda femenina
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
