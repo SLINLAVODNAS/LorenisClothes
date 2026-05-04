@@ -20,20 +20,8 @@ namespace LorenisClothes.Models
         [Required]
         public string Color { get; set; } = "";
 
-        // Talla principal del producto
-        // Ejemplo: 1, 3, 5, 7
-
         [Required]
         public string Talla { get; set; } = "";
-
-        // Aquí pondremos tallas y stock manualmente
-        // Ejemplo:
-        // 1 = 3 unidades
-        // 3 = 5 unidades
-        // 5 = 2 unidades
-
-        [Required]
-        public string TallasTexto { get; set; } = "";
 
         public string? ImagenUrl { get; set; }
 

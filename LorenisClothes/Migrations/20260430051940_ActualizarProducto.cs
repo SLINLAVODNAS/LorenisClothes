@@ -4,20 +4,13 @@
 
 namespace LorenisClothes.Migrations
 {
-    /// <inheritdoc />
     public partial class ActualizarProducto : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
                 name: "Stock",
                 table: "Productos");
-
-            migrationBuilder.RenameColumn(
-                name: "Talla",
-                table: "Productos",
-                newName: "TallasTexto");
 
             migrationBuilder.AlterColumn<string>(
                 name: "ImagenUrl",
@@ -28,14 +21,8 @@ namespace LorenisClothes.Migrations
                 oldType: "nvarchar(max)");
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "TallasTexto",
-                table: "Productos",
-                newName: "Talla");
-
             migrationBuilder.AlterColumn<string>(
                 name: "ImagenUrl",
                 table: "Productos",
