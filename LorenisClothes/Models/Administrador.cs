@@ -7,9 +7,9 @@ namespace LorenisClothes.Models
         public int Id { get; set; }
 
         [Required]
-        public string Usuario { get; set; }
+        public string Usuario { get; set; } = "";
 
         [Required]
-        public string Password { get; set; }
+        public string Password { get; set; } = "";
     }
 }

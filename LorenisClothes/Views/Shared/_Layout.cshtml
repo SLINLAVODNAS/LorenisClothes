@@ -51,9 +51,9 @@
                 border: none;
             }
 
-            .btn-primary:hover {
-                background-color: #2c4d69;
-            }
+                .btn-primary:hover {
+                    background-color: #2c4d69;
+                }
 
             table {
                 border-radius: 10px;
@@ -69,9 +69,9 @@
                 transition: 0.3s;
             }
 
-            .card-producto:hover {
-                transform: scale(1.02);
-            }
+                .card-producto:hover {
+                    transform: scale(1.02);
+                }
     </style>
 </head>
 
@@ -80,18 +80,61 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
 
-            <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+            <a class="navbar-brand"
+                   asp-controller="Home"
+                   asp-action="Index">
                 Loreni´s Clothes
             </a>
 
             <div>
-                <a class="nav-link d-inline" asp-controller="Home" asp-action="Index">
+
+                <a class="nav-link d-inline"
+                       asp-controller="Home"
+                       asp-action="Index">
                     Inicio
                 </a>
 
-                <a class="nav-link d-inline" asp-controller="Productos" asp-action="Index">
+                <a class="nav-link d-inline"
+                       asp-controller="Productos"
+                       asp-action="Index">
                     Productos
                 </a>
+
+                <a class="nav-link d-inline"
+                       asp-controller="Carrito"
+                       asp-action="Index">
+                    Carrito
+                </a>
+
+                @if (Context.Session.GetString("Admin") != null)
+                {
+                    <a class="nav-link d-inline"
+                           asp-controller="Pedidos"
+                           asp-action="Index">
+                        Pedidos
+                    </a>
+
+                    <a class="nav-link d-inline"
+                           asp-controller="Dashboard"
+                           asp-action="Index">
+                        Dashboard
+                    </a>
+
+                    <a class="nav-link d-inline"
+                           asp-controller="Admin"
+                           asp-action="Logout">
+                        Cerrar sesión
+                    </a>
+                }
+                else
+                {
+                    <a class="nav-link d-inline"
+                           asp-controller="Admin"
+                           asp-action="Login">
+                        Admin
+                    </a>
+                }
+
             </div>
 
         </div>
@@ -110,6 +153,7 @@
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

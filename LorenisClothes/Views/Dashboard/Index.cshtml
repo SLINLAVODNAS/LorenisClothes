@@ -1,0 +1,95 @@
+﻿<h1 class="mb-4">
+    Dashboard Administrador
+</h1>
+
+<div class="row">
+
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <h5>
+                    Productos
+                </h5>
+
+                <h2>
+                    @ViewBag.TotalProductos
+                </h2>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <h5>
+                    Pedidos
+                </h5>
+
+                <h2>
+                    @ViewBag.TotalPedidos
+                </h2>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <h5>
+                    Pendientes
+                </h5>
+
+                <h2>
+                    @ViewBag.PedidosPendientes
+                </h2>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm border-0 text-center">
+
+            <div class="card-body">
+
+                <h5>
+                    Entregados
+                </h5>
+
+                <h2>
+                    @ViewBag.PedidosEntregados
+                </h2>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="card shadow-sm border-0 mt-3">
+
+    <div class="card-body text-center">
+
+        <h4>
+            Ventas Totales
+        </h4>
+
+        <h1>
+            Q @ViewBag.VentasTotales
+        </h1>
+
+    </div>
+
+</div>

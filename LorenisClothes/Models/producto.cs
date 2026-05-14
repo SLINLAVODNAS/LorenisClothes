@@ -23,6 +23,8 @@ namespace LorenisClothes.Models
         [Required]
         public string Talla { get; set; } = "";
 
+        public int Stock { get; set; }
+
         public string? ImagenUrl { get; set; }
 
         [NotMapped]

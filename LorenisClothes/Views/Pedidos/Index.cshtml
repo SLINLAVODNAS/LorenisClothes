@@ -1,0 +1,48 @@
+﻿@model List<LorenisClothes.Models.Pedido>
+
+<h1>Pedidos</h1>
+
+<table class="table">
+
+    <thead>
+        <tr>
+            <th>Cliente</th>
+            <th>Telefono</th>
+            <th>Direccion</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Total</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var pedido in Model)
+        {
+            <tr>
+                <td>@pedido.NombreCliente</td>
+
+                <td>@pedido.Telefono</td>
+
+                <td>@pedido.Direccion</td>
+
+                <td>@pedido.FechaPedido</td>
+
+                <td>@pedido.Estado</td>
+
+                <td>Q @pedido.Total</td>
+
+                <td>
+                    <a asp-action="Details"
+                           asp-route-id="@pedido.Id"
+                           class="btn btn-info btn-sm">
+                        Ver detalles
+                    </a>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+
+</table>

@@ -130,6 +130,9 @@ namespace LorenisClothes.Migrations
                     b.Property<double>("Precio")
                         .HasColumnType("float");
 
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
                     b.Property<string>("Talla")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -142,7 +145,7 @@ namespace LorenisClothes.Migrations
             modelBuilder.Entity("LorenisClothes.Models.DetallePedido", b =>
                 {
                     b.HasOne("LorenisClothes.Models.Pedido", "Pedido")
-                        .WithMany()
+                        .WithMany("Detalles")
                         .HasForeignKey("PedidoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -156,6 +159,11 @@ namespace LorenisClothes.Migrations
                     b.Navigation("Pedido");
 
                     b.Navigation("Producto");
+                });
+
+            modelBuilder.Entity("LorenisClothes.Models.Pedido", b =>
+                {
+                    b.Navigation("Detalles");
                 });
 #pragma warning restore 612, 618
         }

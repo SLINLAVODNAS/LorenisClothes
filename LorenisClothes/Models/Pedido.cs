@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace LorenisClothes.Models
 {
@@ -7,18 +9,20 @@ namespace LorenisClothes.Models
         public int Id { get; set; }
 
         [Required]
-        public string NombreCliente { get; set; }
+        public string NombreCliente { get; set; } = "";
 
         [Required]
-        public string Telefono { get; set; }
+        public string Telefono { get; set; } = "";
 
         [Required]
-        public string Direccion { get; set; }
+        public string Direccion { get; set; } = "";
 
         public DateTime FechaPedido { get; set; } = DateTime.Now;
 
         public string Estado { get; set; } = "Pendiente";
 
         public double Total { get; set; }
+
+        public List<DetallePedido> Detalles { get; set; } = new List<DetallePedido>();
     }
 }

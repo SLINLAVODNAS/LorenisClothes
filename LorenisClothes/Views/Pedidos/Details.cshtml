@@ -1,0 +1,152 @@
+﻿@model LorenisClothes.Models.Pedido
+
+<h1 class="mb-4">
+    Detalle del Pedido
+</h1>
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-body">
+
+        <p>
+            <strong>Cliente:</strong>
+            @Model.NombreCliente
+        </p>
+
+        <p>
+            <strong>Telefono:</strong>
+            @Model.Telefono
+        </p>
+
+        <p>
+            <strong>Direccion:</strong>
+            @Model.Direccion
+        </p>
+
+        <p>
+            <strong>Fecha:</strong>
+            @Model.FechaPedido
+        </p>
+
+        <p>
+            <strong>Estado actual:</strong>
+
+            @if (Model.Estado == "Pendiente")
+            {
+                <span class="badge bg-warning text-dark">
+                    Pendiente
+                </span>
+            }
+            else if (Model.Estado == "Enviado")
+            {
+                <span class="badge bg-primary">
+                    Enviado
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-success">
+                    Entregado
+                </span>
+            }
+        </p>
+
+        <p>
+            <strong>Total:</strong>
+            Q @Model.Total
+        </p>
+
+    </div>
+
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-body">
+
+        <h4 class="mb-3">
+            Cambiar Estado
+        </h4>
+
+        <form asp-action="CambiarEstado" method="post">
+
+            <input type="hidden" name="id" value="@Model.Id" />
+
+            <div class="d-flex gap-2 flex-wrap">
+
+                <button type="submit"
+                        name="estado"
+                        value="Pendiente"
+                        class="btn btn-warning">
+                    Pendiente
+                </button>
+
+                <button type="submit"
+                        name="estado"
+                        value="Enviado"
+                        class="btn btn-primary">
+                    Enviado
+                </button>
+
+                <button type="submit"
+                        name="estado"
+                        value="Entregado"
+                        class="btn btn-success">
+                    Entregado
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<h3 class="mb-3">
+    Productos
+</h3>
+
+<table class="table table-bordered align-middle">
+
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var item in Model.Detalles)
+        {
+            <tr>
+
+                <td>
+                    @item.Producto.Nombre
+                </td>
+
+                <td>
+                    @item.Cantidad
+                </td>
+
+                <td>
+                    Q @item.Producto.Precio
+                </td>
+
+                <td>
+                    Q @(item.Cantidad * item.Producto.Precio)
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+
+<a asp-action="Index" class="btn btn-secondary mt-3">
+    Volver
+</a>
