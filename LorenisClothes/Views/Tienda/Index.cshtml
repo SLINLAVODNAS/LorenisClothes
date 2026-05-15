@@ -1,0 +1,32 @@
+﻿@model IEnumerable<LorenisClothes.Models.Producto>
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Nuestra Colección</h2>
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="@item.ImagenUrl" class="card-img-top" alt="@item.Nombre" style="height: 250px; object-fit: cover;">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@item.Nombre</h5>
+                        <p class="card-text text-muted">@item.Descripcion</p>
+                        <h4 class="text-primary">Q @item.Precio</h4>
+                        <p class="small text-secondary">Disponibles: @item.Stock</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pb-3">
+                        <form asp-controller="Carrito" asp-action="Agregar" method="post">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <input type="hidden" name="nombre" value="@item.Nombre" />
+                            <input type="hidden" name="precio" value="@item.Precio" />
+                            <input type="hidden" name="imagenUrl" value="@item.ImagenUrl" />
+                            <button type="submit" class="btn btn-dark w-100">
+                                Agregar al Carrito
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
