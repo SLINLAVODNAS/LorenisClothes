@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 using LorenisClothes.Data;
+using System.Linq;
 
 namespace LorenisClothes.Controllers
 {
@@ -16,14 +16,8 @@ namespace LorenisClothes.Controllers
 
         public IActionResult Index()
         {
-            if (HttpContext.Session.GetString("Admin") == null)
-            {
-                return RedirectToAction("Login", "Admin");
-            }
-
             var pedidos = _context.Pedidos
-                .Include(p => p.Detalles)
-                .ThenInclude(d => d.Producto)
+                .OrderByDescending(p => p.FechaPedido)
                 .ToList();
 
             return View(pedidos);
@@ -31,44 +25,27 @@ namespace LorenisClothes.Controllers
 
         public IActionResult Details(int id)
         {
-            if (HttpContext.Session.GetString("Admin") == null)
-            {
-                return RedirectToAction("Login", "Admin");
-            }
-
             var pedido = _context.Pedidos
                 .Include(p => p.Detalles)
-                .ThenInclude(d => d.Producto)
+                    .ThenInclude(d => d.Producto)
                 .FirstOrDefault(p => p.Id == id);
 
-            if (pedido == null)
-            {
-                return NotFound();
-            }
+            if (pedido == null) return NotFound();
 
             return View(pedido);
         }
 
         [HttpPost]
-        public IActionResult CambiarEstado(int id, string estado)
+        [ValidateAntiForgeryToken]
+        public IActionResult Eliminar(int id)
         {
-            if (HttpContext.Session.GetString("Admin") == null)
+            var pedido = _context.Pedidos.Find(id);
+            if (pedido != null)
             {
-                return RedirectToAction("Login", "Admin");
+                _context.Pedidos.Remove(pedido);
+                _context.SaveChanges();
             }
-
-            var pedido = _context.Pedidos.FirstOrDefault(p => p.Id == id);
-
-            if (pedido == null)
-            {
-                return NotFound();
-            }
-
-            pedido.Estado = estado;
-
-            _context.SaveChanges();
-
-            return RedirectToAction("Details", new { id = pedido.Id });
+            return RedirectToAction(nameof(Index));
         }
     }
 }
