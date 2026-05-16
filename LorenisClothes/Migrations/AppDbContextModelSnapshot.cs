@@ -36,7 +36,8 @@ namespace LorenisClothes.Migrations
 
                     b.Property<string>("Usuario")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -56,6 +57,9 @@ namespace LorenisClothes.Migrations
 
                     b.Property<int>("PedidoId")
                         .HasColumnType("int");
+
+                    b.Property<double>("PrecioUnitario")
+                        .HasColumnType("float");
 
                     b.Property<int>("ProductoId")
                         .HasColumnType("int");
@@ -111,6 +115,9 @@ namespace LorenisClothes.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Categoria")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Color")
                         .IsRequired()

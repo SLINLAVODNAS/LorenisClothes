@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using LorenisClothes.Data;
+using LorenisClothes.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using LorenisClothes.Data;
-using LorenisClothes.Models;
-using LorenisClothes.Extensions;
-using System.IO;
-using System.Threading.Tasks;
-using System.Linq;
 using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LorenisClothes.Controllers
 {
-    [AdminAuth]
     public class ProductosController : Controller
     {
         private readonly AppDbContext _context;
@@ -23,45 +22,51 @@ namespace LorenisClothes.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string buscar, string categoria)
         {
-            return View(await _context.Productos.ToListAsync());
+            var categorias = await _context.Productos
+                .Where(p => !string.IsNullOrEmpty(p.Categoria))
+                .Select(p => p.Categoria)
+                .Distinct()
+                .ToListAsync();
+
+            ViewBag.Categorias = categorias;
+            var productos = _context.Productos.AsQueryable();
+
+            if (!string.IsNullOrEmpty(buscar))
+                productos = productos.Where(s => s.Nombre.Contains(buscar) || s.Descripcion.Contains(buscar));
+
+            if (!string.IsNullOrEmpty(categoria))
+                productos = productos.Where(x => x.Categoria == categoria);
+
+            return View(await productos.OrderByDescending(p => p.Id).ToListAsync());
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public IActionResult Create()
         {
-            if (id == null) return NotFound();
-
-            var producto = await _context.Productos.FirstOrDefaultAsync(m => m.Id == id);
-            if (producto == null) return NotFound();
-
-            return View(producto);
+            if (HttpContext.Session.GetString("IsAdmin") != "true")
+            {
+                return RedirectToAction("Login", "Admin"); 
+            }
+            return View();
         }
-
-        public IActionResult Create() => View();
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Producto producto)
         {
+            if (HttpContext.Session.GetString("IsAdmin") != "true") return Unauthorized();
+
+            ModelState.Remove("ImagenUrl");
+            ModelState.Remove("ImagenArchivo");
+
+            if (producto.ImagenArchivo != null)
+            {
+                producto.ImagenUrl = await GuardarImagen(producto.ImagenArchivo);
+            }
+
             if (ModelState.IsValid)
             {
-                if (producto.ImagenArchivo != null)
-                {
-                    string carpeta = Path.Combine(_webHostEnvironment.WebRootPath, "imagenes");
-                    if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
-
-                    string nombreArchivo = Guid.NewGuid().ToString() + "_" + producto.ImagenArchivo.FileName;
-                    string rutaCompleta = Path.Combine(carpeta, nombreArchivo);
-
-                    using (var stream = new FileStream(rutaCompleta, FileMode.Create))
-                    {
-                        await producto.ImagenArchivo.CopyToAsync(stream);
-                    }
-
-                    producto.ImagenUrl = "/imagenes/" + nombreArchivo;
-                }
-
                 _context.Add(producto);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -71,24 +76,39 @@ namespace LorenisClothes.Controllers
 
         public async Task<IActionResult> Edit(int? id)
         {
+            if (HttpContext.Session.GetString("IsAdmin") != "true") return RedirectToAction("Login", "Admin");
             if (id == null) return NotFound();
 
             var producto = await _context.Productos.FindAsync(id);
-            if (producto == null) return NotFound();
-
-            return View(producto);
+            return producto == null ? NotFound() : View(producto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Producto producto)
         {
+            if (HttpContext.Session.GetString("IsAdmin") != "true") return Unauthorized();
+
+            ModelState.Remove("ImagenUrl");
+            ModelState.Remove("ImagenArchivo");
+
             if (id != producto.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    if (producto.ImagenArchivo != null)
+                    {
+                        var ant = await _context.Productos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+                        if (ant != null) EliminarArchivoImagen(ant.ImagenUrl);
+                        producto.ImagenUrl = await GuardarImagen(producto.ImagenArchivo);
+                    }
+                    else
+                    {
+                        _context.Entry(producto).Property(x => x.ImagenUrl).IsModified = false;
+                    }
+
                     _context.Update(producto);
                     await _context.SaveChangesAsync();
                 }
@@ -102,32 +122,39 @@ namespace LorenisClothes.Controllers
             return View(producto);
         }
 
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var producto = await _context.Productos.FirstOrDefaultAsync(m => m.Id == id);
-            if (producto == null) return NotFound();
-
-            return View(producto);
-        }
-
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (HttpContext.Session.GetString("IsAdmin") != "true") return Unauthorized();
+
             var producto = await _context.Productos.FindAsync(id);
             if (producto != null)
             {
+                EliminarArchivoImagen(producto.ImagenUrl);
                 _context.Productos.Remove(producto);
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductoExists(int id)
+        private async Task<string> GuardarImagen(Microsoft.AspNetCore.Http.IFormFile archivo)
         {
-            return _context.Productos.Any(e => e.Id == id);
+            string carpeta = Path.Combine(_webHostEnvironment.WebRootPath, "imagenes");
+            if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
+            string nombre = Guid.NewGuid().ToString() + Path.GetExtension(archivo.FileName);
+            string ruta = Path.Combine(carpeta, nombre);
+            using (var stream = new FileStream(ruta, FileMode.Create)) { await archivo.CopyToAsync(stream); }
+            return "/imagenes/" + nombre;
         }
+
+        private void EliminarArchivoImagen(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return;
+            string ruta = Path.Combine(_webHostEnvironment.WebRootPath, url.TrimStart('/'));
+            if (System.IO.File.Exists(ruta)) System.IO.File.Delete(ruta);
+        }
+
+        private bool ProductoExists(int id) => _context.Productos.Any(e => e.Id == id);
     }
 }

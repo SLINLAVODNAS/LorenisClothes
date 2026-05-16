@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Net;
 
 namespace LorenisClothes.Controllers
 {
@@ -31,27 +32,72 @@ namespace LorenisClothes.Controllers
 
         public IActionResult Index()
         {
-            return View(ObtenerCarrito());
+            var carrito = ObtenerCarrito();
+            ViewBag.Total = carrito.Sum(x => x.Precio * x.Cantidad);
+            return View(carrito);
         }
 
-        public IActionResult Agregar(int id, string nombre, double precio, string imagenUrl)
+        public IActionResult Agregar(int id)
         {
-            var producto = _context.Productos.FirstOrDefault(x => x.Id == id);
-            if (producto == null || producto.Stock <= 0) return RedirectToAction("Index", "Productos");
+            var producto = _context.Productos.Find(id);
+            if (producto == null) return RedirectToAction("Index", "Home");
 
             var carrito = ObtenerCarrito();
             var item = carrito.FirstOrDefault(x => x.ProductoId == id);
 
             if (item != null)
             {
-                if (item.Cantidad < producto.Stock) item.Cantidad++;
+                if (item.Cantidad < producto.Stock)
+                {
+                    item.Cantidad++;
+                }
+                else
+                {
+                    TempData["Error"] = $"No hay más unidades disponibles de {producto.Nombre}";
+                }
             }
             else
             {
-                carrito.Add(new CarritoItem { ProductoId = id, Nombre = nombre, Precio = precio, ImagenUrl = imagenUrl, Cantidad = 1 });
+                if (producto.Stock > 0)
+                {
+                    carrito.Add(new CarritoItem
+                    {
+                        ProductoId = id,
+                        Nombre = producto.Nombre,
+                        Precio = producto.Precio,
+                        ImagenUrl = producto.ImagenUrl,
+                        Cantidad = 1
+                    });
+                }
+                else
+                {
+                    TempData["Error"] = "El producto se encuentra agotado.";
+                }
             }
 
             GuardarCarrito(carrito);
+            return RedirectToAction("Index");
+        }
+
+        // Nueva acción para corregir el error 404 al restar
+        public IActionResult Restar(int id)
+        {
+            var carrito = ObtenerCarrito();
+            var item = carrito.FirstOrDefault(x => x.ProductoId == id);
+
+            if (item != null)
+            {
+                if (item.Cantidad > 1)
+                {
+                    item.Cantidad--;
+                }
+                else
+                {
+                    carrito.Remove(item);
+                }
+                GuardarCarrito(carrito);
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -73,55 +119,80 @@ namespace LorenisClothes.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Checkout() => View();
+        public IActionResult Checkout()
+        {
+            var carrito = ObtenerCarrito();
+            if (carrito.Count == 0) return RedirectToAction("Index");
+
+            ViewBag.Total = carrito.Sum(x => x.Precio * x.Cantidad);
+            return View();
+        }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Checkout(Pedido pedido)
         {
             var carrito = ObtenerCarrito();
             if (carrito.Count == 0) return RedirectToAction("Index");
 
-            pedido.Detalles = new List<DetallePedido>();
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Total = carrito.Sum(x => x.Precio * x.Cantidad);
+                return View(pedido);
+            }
+
             pedido.FechaPedido = DateTime.Now;
-            double total = 0;
+            pedido.Estado = "Pendiente";
+            double totalCalculado = 0;
+
+            pedido.Detalles = new List<DetallePedido>();
 
             foreach (var item in carrito)
             {
                 var producto = _context.Productos.Find(item.ProductoId);
                 if (producto == null || producto.Stock < item.Cantidad)
                 {
-                    return Content("Stock insuficiente para: " + item.Nombre);
+                    TempData["Error"] = $"Stock insuficiente para: {item.Nombre}";
+                    return RedirectToAction("Index");
                 }
 
                 producto.Stock -= item.Cantidad;
-                total += item.Precio * item.Cantidad;
+                totalCalculado += item.Precio * item.Cantidad;
 
                 pedido.Detalles.Add(new DetallePedido
                 {
                     ProductoId = item.ProductoId,
-                    Cantidad = item.Cantidad
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = item.Precio
                 });
             }
 
-            pedido.Total = total;
+            pedido.Total = totalCalculado;
+
             _context.Pedidos.Add(pedido);
             _context.SaveChanges();
 
             string numero = "50245556147";
-            string encabezado = "*PEDIDO %23" + pedido.Id + "*%0A*Cliente:* " + pedido.NombreCliente + "%0A*Tel:* " + pedido.Telefono + "%0A--------------------------%0A";
-            string cuerpo = "";
+            string textoMensaje = $"*NUEVO PEDIDO #00{pedido.Id}*\n" +
+                                  $"*Cliente:* {pedido.NombreCliente}\n" +
+                                  $"*Tel:* {pedido.Telefono}\n" +
+                                  $"*Dirección:* {pedido.Direccion}\n" +
+                                  "--------------------------\n";
 
             foreach (var item in carrito)
             {
-                cuerpo += "- " + item.Nombre + " (x" + item.Cantidad + ") - Q" + (item.Precio * item.Cantidad) + "%0A";
+                textoMensaje += $"• {item.Nombre} (x{item.Cantidad}) - Q{item.Precio * item.Cantidad:N2}\n";
             }
 
-            string pie = "--------------------------%0A*TOTAL: Q" + total + "*";
-            string mensajeCompleto = encabezado + cuerpo + pie;
+            textoMensaje += "--------------------------\n" +
+                            $"*TOTAL A PAGAR: Q{totalCalculado:N2}*\n\n" +
+                            "_Entrega local en cabecera de Jalapa._";
+
+            string mensajeSafe = WebUtility.UrlEncode(textoMensaje);
 
             HttpContext.Session.Remove("Carrito");
 
-            return Redirect("https://wa.me/" + numero + "?text=" + mensajeCompleto);
+            return Redirect($"https://wa.me/{numero}?text={mensajeSafe}");
         }
     }
 }

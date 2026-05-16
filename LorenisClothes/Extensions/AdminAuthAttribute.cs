@@ -8,13 +8,10 @@ namespace LorenisClothes.Extensions
     {
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            string? adminSession = context.HttpContext.Session.GetString("AdminSession");
-
-            if (string.IsNullOrEmpty(adminSession))
+            if (context.HttpContext.Session.GetString("Admin") == null)
             {
-                context.Result = new RedirectToActionResult("Index", "Login", null);
+                context.Result = new RedirectToActionResult("Login", "Admin", null);
             }
-
             base.OnActionExecuting(context);
         }
     }

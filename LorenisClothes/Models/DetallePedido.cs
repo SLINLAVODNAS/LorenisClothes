@@ -11,5 +11,7 @@
         public Producto Producto { get; set; } = null!;
 
         public int Cantidad { get; set; }
+
+        public double PrecioUnitario { get; set; }
     }
 }

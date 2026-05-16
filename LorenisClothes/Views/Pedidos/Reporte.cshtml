@@ -1,0 +1,65 @@
+﻿@model IEnumerable<LorenisClothes.Models.Pedido>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Reporte de Ventas</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body { background-color: white; color: black; padding: 20px; }
+        .header { border-bottom: 2px solid #000; margin-bottom: 20px; padding-bottom: 10px; }
+        @@media print { .no-print { display: none; } }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="container-fluid">
+        <div class="header d-flex justify-content-between">
+            <div>
+                <h1>LORENI'S CLOTHES</h1>
+                <p>Jalapa, Guatemala</p>
+            </div>
+            <div class="text-end">
+                <p>Fecha: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th class="text-end">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>#@item.Id</td>
+                        <td>@item.FechaPedido.ToString("dd/MM/yy")</td>
+                        <td>@item.NombreCliente</td>
+                        <td>@item.Estado</td>
+                        <td class="text-end">Q @item.Total.ToString("N2")</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="fw-bold">
+                    <td colspan="4" class="text-end">TOTAL:</td>
+                    <td class="text-end">Q @Model.Sum(x => x.Total).ToString("N2")</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="mt-5 text-center no-print">
+            <button onclick="window.close()" class="btn btn-secondary">Regresar</button>
+        </div>
+    </div>
+</body>
+</html>

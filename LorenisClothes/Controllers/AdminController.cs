@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using LorenisClothes.Data;
 using Microsoft.AspNetCore.Http;
+using LorenisClothes.Data;
+using LorenisClothes.Models;
 using System.Linq;
 
 namespace LorenisClothes.Controllers
@@ -14,41 +15,36 @@ namespace LorenisClothes.Controllers
             _context = context;
         }
 
-        [HttpGet]
         public IActionResult Login()
         {
+            if (HttpContext.Session.GetString("Admin") != null)
+            {
+                return RedirectToAction("Index", "Pedidos");
+            }
             return View();
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Login(string usuario, string password)
         {
-            if (_context == null)
-            {
-                return Content("Error de conexión con la base de datos");
-            }
-
             var admin = _context.Administradores
-                .FirstOrDefault(a =>
-                    a.Usuario == usuario &&
-                    a.Password == password);
+                .FirstOrDefault(u => u.Usuario == usuario && u.Password == password);
 
-            if (admin == null)
+            if (admin != null)
             {
-                ViewBag.Error = "Usuario o contraseña incorrectos";
-                return View();
+                HttpContext.Session.SetString("Admin", admin.Usuario);
+                return RedirectToAction("Index", "Pedidos");
             }
 
-            HttpContext.Session.SetString("Admin", admin.Usuario);
-
-            return RedirectToAction("Index", "Pedidos");
+            ViewBag.Error = "Credenciales incorrectas";
+            return View();
         }
 
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear();
-
-            return RedirectToAction("Login");
+            HttpContext.Session.Remove("Admin");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

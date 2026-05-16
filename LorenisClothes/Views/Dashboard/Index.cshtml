@@ -1,95 +1,78 @@
-﻿<h1 class="mb-4">
-    Dashboard Administrador
-</h1>
+﻿@model IEnumerable<LorenisClothes.Models.Pedido>
 
-<div class="row">
+<div class="container mt-4">
+    <h2 class="fw-bold mb-4">Panel de Control</h2>
 
-    <div class="col-md-3 mb-4">
-        <div class="card shadow-sm border-0 text-center">
-
-            <div class="card-body">
-
-                <h5>
-                    Productos
-                </h5>
-
-                <h2>
-                    @ViewBag.TotalProductos
-                </h2>
-
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase">Total Ventas</h6>
+                    <h3 class="fw-bold">Q @ViewBag.TotalVentas</h3>
+                </div>
             </div>
-
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase">Pedidos Realizados</h6>
+                    <h3 class="fw-bold">@ViewBag.CantidadPedidos</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-info text-white shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase">Productos en Catálogo</h6>
+                    <h3 class="fw-bold">@ViewBag.TotalProductos</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-dark shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-uppercase">Stock Bajo (< 5)</h6>
+                    <h3 class="fw-bold">@ViewBag.StockBajo</h3>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="col-md-3 mb-4">
-        <div class="card shadow-sm border-0 text-center">
-
-            <div class="card-body">
-
-                <h5>
-                    Pedidos
-                </h5>
-
-                <h2>
-                    @ViewBag.TotalPedidos
-                </h2>
-
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Últimos Pedidos</h5>
+                    <a asp-controller="Pedidos" asp-action="Index" class="btn btn-sm btn-light">Ver todos</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">ID</th>
+                                <th>Cliente</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th class="text-end pe-3">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var pedido in Model)
+                            {
+                                <tr>
+                                    <td class="ps-3">#@pedido.Id</td>
+                                    <td>@pedido.NombreCliente</td>
+                                    <td>@pedido.FechaPedido.ToString("dd/MM/yyyy")</td>
+                                    <td class="fw-bold text-success">Q @pedido.Total</td>
+                                    <td class="text-end pe-3">
+                                        <a asp-controller="Pedidos" asp-action="Details" asp-route-id="@pedido.Id" class="btn btn-sm btn-outline-primary">Detalles</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
         </div>
     </div>
-
-    <div class="col-md-3 mb-4">
-        <div class="card shadow-sm border-0 text-center">
-
-            <div class="card-body">
-
-                <h5>
-                    Pendientes
-                </h5>
-
-                <h2>
-                    @ViewBag.PedidosPendientes
-                </h2>
-
-            </div>
-
-        </div>
-    </div>
-
-    <div class="col-md-3 mb-4">
-        <div class="card shadow-sm border-0 text-center">
-
-            <div class="card-body">
-
-                <h5>
-                    Entregados
-                </h5>
-
-                <h2>
-                    @ViewBag.PedidosEntregados
-                </h2>
-
-            </div>
-
-        </div>
-    </div>
-
-</div>
-
-<div class="card shadow-sm border-0 mt-3">
-
-    <div class="card-body text-center">
-
-        <h4>
-            Ventas Totales
-        </h4>
-
-        <h1>
-            Q @ViewBag.VentasTotales
-        </h1>
-
-    </div>
-
 </div>

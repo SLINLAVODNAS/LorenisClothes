@@ -1,115 +1,132 @@
-﻿@model IEnumerable<LorenisClothes.Models.Producto>
+﻿@using Microsoft.AspNetCore.Http
+@model IEnumerable<LorenisClothes.Models.Producto>
 
-@{
-    ViewData["Title"] = "Productos";
-}
+<div class="container mt-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-4">
+            <h2 class="fw-bold text-dark"><i class="bi bi-shop me-2"></i>Catálogo de Productos</h2>
+        </div>
+        <div class="col-md-8 text-md-end">
+            <div class="d-flex flex-wrap justify-content-md-end gap-2">
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-
-    <h1>Productos</h1>
-
-    @if (Context.Session.GetString("Admin") != null)
-    {
-        <a asp-action="Create" class="btn btn-primary">
-            Agregar Producto
-        </a>
-    }
-
-</div>
-
-<div class="row">
-
-    @foreach (var item in Model)
-    {
-        <div class="col-md-4 mb-4">
-
-            <div class="card h-100 shadow-sm border-0">
-
-                <img src="@item.ImagenUrl"
-                     class="card-img-top"
-                     style="height:300px; object-fit:cover;" />
-
-                <div class="card-body">
-
-                    <h5 class="card-title">
-                        @item.Nombre
-                    </h5>
-
-                    <p class="card-text">
-                        @item.Descripcion
-                    </p>
-
-                    <p>
-                        <strong>Precio:</strong>
-                        Q @item.Precio
-                    </p>
-
-                    <p>
-                        <strong>Color:</strong>
-                        @item.Color
-                    </p>
-
-                    <p>
-                        <strong>Stock:</strong>
-                        @item.Stock
-                    </p>
-
-                    @if (item.Stock <= 0)
-                    {
-                        <p class="text-danger">
-                            Producto agotado
-                        </p>
-                    }
-
-                </div>
-
-                <div class="card-footer bg-white border-0 d-flex justify-content-between flex-wrap gap-2">
-
-                    @if (Context.Session.GetString("Admin") != null)
-                    {
-                        <a asp-action="Edit"
-                               asp-route-id="@item.Id"
-                               class="btn btn-warning btn-sm">
-                            Editar
-                        </a>
-
-                        <a asp-action="Delete"
-                               asp-route-id="@item.Id"
-                               class="btn btn-danger btn-sm">
-                            Eliminar
-                        </a>
-                    }
-
-                    <a asp-action="Details"
-                           asp-route-id="@item.Id"
-                           class="btn btn-info btn-sm">
-                        Detalles
+                @if (Context.Session.GetString("IsAdmin") == "true")
+                {
+                    <a asp-action="Create" class="btn btn-success fw-bold shadow-sm">
+                        <i class="bi bi-plus-lg me-1"></i> Nuevo Producto
                     </a>
+                }
 
-                    @if (item.Stock > 0)
-                    {
-                        <a asp-controller="Carrito"
-                               asp-action="Agregar"
-                               asp-route-id="@item.Id"
-                               asp-route-nombre="@item.Nombre"
-                               asp-route-precio="@item.Precio"
-                               asp-route-imagenUrl="@item.ImagenUrl"
-                               class="btn btn-success btn-sm">
-                            Agregar al carrito
-                        </a>
-                    }
-                    else
-                    {
-                        <button class="btn btn-secondary btn-sm" disabled>
-                            Sin stock
-                        </button>
-                    }
-
-                </div>
-
+                <form asp-action="Index" method="get" class="d-flex gap-2">
+                    <select name="categoria" class="form-select w-auto">
+                        <option value="">Todas las categorías</option>
+                        @if (ViewBag.Categorias != null)
+                        {
+                            foreach (var cat in (List<string>)ViewBag.Categorias)
+                            {
+                                <option value="@cat" selected="@(Context.Request.Query["categoria"] == cat)">@cat</option>
+                            }
+                        }
+                    </select>
+                    <input type="text" name="buscar" class="form-control w-auto" placeholder="Buscar prenda..." value="@Context.Request.Query["buscar"]">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i>
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </a>
+                </form>
             </div>
+        </div>
+    </div>
 
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 card-producto">
+                    <div class="position-relative">
+
+                        @if (Context.Session.GetString("IsAdmin") == "true")
+                        {
+                            <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+                                <div class="btn-group shadow-sm">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-light">
+                                        <i class="bi bi-pencil text-primary"></i>
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar este producto permanentemente?')">
+                                        <button type="submit" class="btn btn-sm btn-light">
+                                            <i class="bi bi-trash text-danger"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(item.ImagenUrl))
+                        {
+                            <img src="@item.ImagenUrl" class="card-img-top" alt="@item.Nombre" style="height: 280px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 280px;">
+                                <i class="bi bi-image text-muted fs-1"></i>
+                            </div>
+                        }
+
+                        @if (item.Stock <= 0)
+                        {
+                            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.7); z-index: 1;">
+                                <span class="badge bg-danger fs-6 shadow">Agotado</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="card-body d-flex flex-column">
+                        <div class="mb-1">
+                            <span class="badge bg-light text-dark border small">@item.Categoria</span>
+                        </div>
+                        <h5 class="card-title fw-bold text-dark mb-1">@item.Nombre</h5>
+                        
+                        <div class="mb-2">
+                            <small class="text-muted d-block">Color: @(item.Color ?? "N/A") | Talla: @(item.Talla ?? "N/A")</small>
+                        </div>
+
+                        <p class="card-text text-muted small flex-grow-1">
+                            @(item.Descripcion?.Length > 60 ? item.Descripcion.Substring(0, 57) + "..." : item.Descripcion)
+                        </p>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="fs-4 fw-bold text-primary">Q @item.Precio.ToString("N2")</span>
+                            <span class="badge @(item.Stock < 5 ? "text-danger" : "text-muted") small">
+                                @(item.Stock > 0 ? $"Stock: {item.Stock}" : "Sin stock")
+                            </span>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-3">
+                            @if (item.Stock > 0)
+                            {
+                                <a asp-controller="Carrito" asp-action="Agregar"
+                                       asp-route-id="@item.Id"
+                                       class="btn btn-primary fw-bold">
+                                    <i class="bi bi-cart-plus me-1"></i> Agregar
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary" disabled>No disponible</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-emoji-frown display-4 text-muted"></i>
+            <p class="mt-3">No hay productos que coincidan con tu búsqueda.</p>
         </div>
     }
-
 </div>

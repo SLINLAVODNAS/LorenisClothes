@@ -4,12 +4,15 @@ namespace LorenisClothes.Models
 {
     public class Administrador
     {
+        [Key]
         public int Id { get; set; }
 
-        [Required]
-        public string Usuario { get; set; } = "";
+        [Required(ErrorMessage = "El usuario es obligatorio")]
+        [StringLength(50)]
+        public string Usuario { get; set; } = string.Empty;
 
-        [Required]
-        public string Password { get; set; } = "";
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = string.Empty;
     }
 }
